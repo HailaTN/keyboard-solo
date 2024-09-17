@@ -10,23 +10,23 @@ let correctCount = 0;
 let wrongCount = 0;
 let mistakesInCurrentWord = 0;
 let timerInterval;
-let userInput = ''; 
+let idx = 0; 
 
 function setNewWord() {
     currentWord = words[Math.floor(Math.random() * words.length)];
-    wordContainer.innerHTML = '';
+    wordContainer.innerHTML = ''; 
 
     currentWord.split('').forEach(char => {
         const span = document.createElement('span');
         span.textContent = char;
+        span.classList.add('symbol'); 
         wordContainer.appendChild(span);
     });
 
-    userInput = ''; 
-    mistakesInCurrentWord = 0;
-    mistakesEl.textContent = mistakesInCurrentWord; 
-    startTimer(); 
-    wordContainer.focus(); 
+    idx = 0; 
+    mistakesInCurrentWord = 0; 
+    mistakesEl.textContent = mistakesInCurrentWord;
+    startTimer();
 }
 
 function startTimer() {
@@ -42,78 +42,29 @@ function startTimer() {
 }
 
 wordContainer.setAttribute('tabindex', '0');
+wordContainer.focus(); 
 
 wordContainer.addEventListener('keydown', (e) => {
     e.preventDefault();
     const inputChar = e.key;
 
     if (inputChar.length === 1 && /^[a-zA-Z]$/.test(inputChar)) {
-        userInput += inputChar;
-    } else if (inputChar === 'Backspace') {
-        userInput = userInput.slice(0, -1); 
-    } else {
-        return; 
-    }    
+        if (inputChar === currentWord[idx]) {
+            wordContainer.childNodes[idx].classList.add('c'); 
+            idx++; 
+        } else {
+            wordContainer.childNodes[idx].classList.add('w');
+            mistakesInCurrentWord++;
+            mistakesEl.textContent = mistakesInCurrentWord; 
+        }
 
-    wordContainer.childNodes.forEach((span) => {
-        span.className = ''; 
-    });
-
-    if (currentWord.startsWith(userInput)) {
-        wordContainer.childNodes.forEach((span, index) => {
-            if (index < userInput.length) {
-                span.className = 'correct';
-            }
-        });
-
-        if (userInput === currentWord) {
+        if (idx === currentWord.length) {
             correctCount++;
             correctCountEl.textContent = correctCount;
-
-            if (correctCount === 5) {
-                alert('Вы выиграли!');
-                resetGame();
-            } else {
-                setNewWord();
-            }
-        }
-    } else {
-        if (userInput.length <= currentWord.length) {
-            const mistakeIndex = userInput.length - 1;
-            if (mistakeIndex >= 0) {
-                wordContainer.childNodes[mistakeIndex].className = 'wrong';
-            }
-            mistakesInCurrentWord++;
-            mistakesEl.textContent = mistakesInCurrentWord;
-
-            if (mistakesInCurrentWord > 5) {
-                wrongCount++;
-                wrongCountEl.textContent = wrongCount;
-
-                if (wrongCount === 5) {
-                    alert('Вы проиграли!');
-                    resetGame();
-                } else {
-                    alert('Ошибка! Повторите ввод.');
-                    mistakesInCurrentWord = 0;
-                    mistakesEl.textContent = mistakesInCurrentWord;
-                    userInput = '';
-                }
-            }
+            alert('Слово введено правильно!');
+            setNewWord();
         }
     }
 });
 
-function resetGame() {
-    clearInterval(timerInterval);
-    correctCount = 0;
-    wrongCount = 0;
-    mistakesInCurrentWord = 0;
-    correctCountEl.textContent = correctCount;
-    wrongCountEl.textContent = wrongCount;
-    mistakesEl.textContent = mistakesInCurrentWord;
-    timerEl.textContent = '00:00';
-    setNewWord();
-}
-
-setNewWord(); 
+setNewWord();
