@@ -40,11 +40,11 @@ body {
   font-size: 50px;
 }
 
-.c {
+.symbol.c {
   color: green;
 }
 
-.w {
+.symbol.w {
   color: red;
 }
 
